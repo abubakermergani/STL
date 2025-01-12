@@ -1,1 +1,201 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حساب تكلفة الشحن - الصندوق الطائر</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #5a2d0c; /* بني غامق */
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #ff7f32; /* برتقالي */
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #e66a1a;
+        }
+
+        #result {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #shippingButton {
+            display: none;
+            background-color: #4CAF50; /* أخضر */
+            margin-top: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>حساب تكلفة الشحن مع شركة الصندوق الطائر (STL)</h1>
+        <form id="shippingForm">
+            <label for="pieces">عدد القطع:</label>
+            <input type="number" id="pieces" name="pieces" required>
+
+            <label for="weight">وزن كل قطعة (بالكيلو):</label>
+            <input type="number" id="weight" name="weight" required>
+
+            <label for="destination">الوجهة:</label>
+            <select id="destination" name="destination" required>
+                <option value="local">محلي</option>
+                <option value="international">دولي</option>
+            </select>
+
+            <label for="fromCountry">دولة الشحن:</label>
+            <select id="fromCountry" name="fromCountry" required>
+                <!-- قائمة البلدان ستضاف هنا -->
+            </select>
+
+            <label for="fromCity">مدينة الشحن:</label>
+            <select id="fromCity" name="fromCity" required>
+                <!-- المدن الخاصة بالدولة ستضاف هنا -->
+            </select>
+
+            <label for="toCountry">دولة الوجهة:</label>
+            <select id="toCountry" name="toCountry" required>
+                <!-- قائمة البلدان ستضاف هنا -->
+            </select>
+
+            <label for="toCity">مدينة الوجهة:</label>
+            <select id="toCity" name="toCity" required>
+                <!-- المدن الخاصة بالدولة ستضاف هنا -->
+            </select>
+
+            <button type="button" onclick="calculateShipping()">حساب التكلفة</button>
+        </form>
+
+        <div id="result">
+            <h2>تكلفة الشحن:</h2>
+            <p id="cost">الرجاء ملء البيانات لحساب التكلفة</p>
+        </div>
+
+        <!-- زر "الشحن الآن" مع رابط الدفع -->
+        <button id="shippingButton" onclick="redirectToPayment()">الشحن الآن</button>
+    </div>
+
+    <script>
+        // دالة لحساب تكلفة الشحن
+        function calculateShipping() {
+            const pieces = document.getElementById('pieces').value;
+            const weight = document.getElementById('weight').value;
+            const destination = document.getElementById('destination').value;
+
+            // تحديد سعر الشحن حسب الوجهة
+            let pricePerKg = (destination === 'local') ? 5 : 10;
+            
+            // حساب التكلفة الإجمالية
+            const totalCost = pieces * weight * pricePerKg;
+
+            // عرض التكلفة في الصفحة
+            document.getElementById('cost').innerText = `التكلفة الإجمالية: ${totalCost} ريال`;
+
+            // إظهار زر "الشحن الآن" بعد حساب التكلفة
+            document.getElementById('shippingButton').style.display = 'block';
+        }
+
+        // دالة لتحويل المستخدم إلى رابط الدفع
+        function redirectToPayment() {
+            // هنا يمكنك تخصيص الرابط المستقبلي الذي سيتم التوجيه إليه
+            const paymentLink = 'https://example.com/payment?amount=' + encodeURIComponent(document.getElementById('cost').innerText);
+            window.location.href = paymentLink;  // يتم توجيه المستخدم إلى رابط الدفع
+        }
+
+        // إضافة البلدان والمدن
+        const countries = {
+            "السعودية": ["الرياض", "جدة", "الدمام"],
+            "مصر": ["القاهرة", "الإسكندرية", "المنصورة"],
+            "الإمارات": ["أبوظبي", "دبي", "الشارقة"],
+            "الأردن": ["عمان", "إربد", "الزرقاء"],
+            // أضف المزيد من البلدان والمدن هنا
+        };
+
+        const fromCountrySelect = document.getElementById('fromCountry');
+        const toCountrySelect = document.getElementById('toCountry');
+
+        for (let country in countries) {
+            const optionFrom = document.createElement('option');
+            optionFrom.value = country;
+            optionFrom.innerText = country;
+            fromCountrySelect.appendChild(optionFrom);
+
+            const optionTo = document.createElement('option');
+            optionTo.value = country;
+            optionTo.innerText = country;
+            toCountrySelect.appendChild(optionTo);
+        }
+
+        // إضافة المدن عند اختيار الدولة
+        function updateCities(countrySelect, citySelect) {
+            const country = countrySelect.value;
+            const cities = countries[country];
+            
+            citySelect.innerHTML = '';  // مسح المدن السابقة
+            cities.forEach(city => {
+                const option = document.createElement('option');
+                option.value = city;
+                option.innerText = city;
+                citySelect.appendChild(option);
+            });
+        }
+
+        fromCountrySelect.addEventListener('change', () => updateCities(fromCountrySelect, document.getElementById('fromCity')));
+        toCountrySelect.addEventListener('change', () => updateCities(toCountrySelect, document.getElementById('toCity')));
+
+        // استدعاء التحديث الأولي للمدن
+        updateCities(fromCountrySelect, document.getElementById('fromCity'));
+        updateCities(toCountrySelect, document.getElementById('toCity'));
+    </script>
+</body>
+</html>
 
